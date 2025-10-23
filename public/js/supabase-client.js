@@ -83,10 +83,13 @@ export const auth = {
   // Sign In with Google
   async signInWithGoogle() {
     try {
+      // Ensure proper redirect URL for both local and production
+      const redirectUrl = window.location.origin + '/dashboard.html';
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin + '/dashboard.html'
+          redirectTo: redirectUrl
         }
       });
 
