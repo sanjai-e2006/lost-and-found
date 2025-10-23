@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - YoLost?</title>
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <i class="fas fa-cloud"></i>
+        <span>YoLost?</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-view="overview">
+          <i class="fas fa-home"></i>
+          <span>Dashboard Overview</span>
+        </a>
+        <a href="#" class="nav-item" data-view="items">
+          <i class="fas fa-box"></i>
+          <span>Items</span>
+        </a>
+        <a href="#" class="nav-item" data-view="map">
+          <i class="fas fa-map-marked-alt"></i>
+          <span>Map View</span>
+        </a>
+        <a href="#" class="nav-item" data-view="blockchain">
+          <i class="fas fa-link"></i>
+          <span>Blockchain Records</span>
+        </a>
+        <a href="#" class="nav-item" data-view="notifications">
+          <i class="fas fa-bell"></i>
+          <span>Notifications</span>
+          <span class="notification-badge" id="notificationCount">0</span>
+        </a>
+        <a href="#" class="nav-item" data-view="help">
+          <i class="fas fa-question-circle"></i>
+          <span>Help & Support</span>
+        </a>
+        <a href="#" class="nav-item" data-view="profile">
+          <i class="fas fa-user"></i>
+          <span>Profile</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="btn-logout" id="logoutBtn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <div class="welcome-message">
+          <h1>Welcome back, <span id="userName">User</span>!</h1>
+          <p>Let's manage your YoLost? records</p>
+        </div>
+        <div class="user-avatar">
+          <i class="fas fa-user-circle"></i>
+        </div>
+      </header>
+
+      <!-- Overview Section -->
+      <section id="overview-view" class="view-section active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+              <i class="fas fa-box"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="totalItems">0</h3>
+              <p>Total Items</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+              <i class="fas fa-hand-holding"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="foundItems">0</h3>
+              <p>Found Items</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+              <i class="fas fa-search"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="lostItems">0</h3>
+              <p>Lost Items</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="matchedItems">0</h3>
+              <p>Matched Items</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="quick-actions">
+          <h2>Quick Actions</h2>
+          <div class="action-buttons">
+            <button class="action-btn" id="addItemBtn">
+              <i class="fas fa-plus-circle"></i>
+              <span>Add Lost/Found Item</span>
+            </button>
+            <button class="action-btn" onclick="switchView('blockchain')">
+              <i class="fas fa-link"></i>
+              <span>View Blockchain</span>
+            </button>
+            <button class="action-btn" onclick="switchView('notifications')">
+              <i class="fas fa-bell"></i>
+              <span>Check Notifications</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="recent-items">
+          <h2>Recent Activity</h2>
+          <div id="recentItemsList" class="item-list-compact"></div>
+        </div>
+      </section>
+
+      <!-- Items Section -->
+      <section id="items-view" class="view-section">
+        <div class="section-header">
+          <h2>Items Management</h2>
+          <button class="btn-primary" id="addItemBtn2">
+            <i class="fas fa-plus"></i> Add Item
+          </button>
+        </div>
+
+        <div class="filters">
+          <div class="filter-group">
+            <label>Filter by Type:</label>
+            <select id="filterType">
+              <option value="">All Types</option>
+              <option value="found">Found Items</option>
+              <option value="lost">Lost Items</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Filter by Category:</label>
+            <select id="filterCategory">
+              <option value="">All Categories</option>
+              <option value="Wallet">Wallet</option>
+              <option value="ID">ID</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Keys">Keys</option>
+              <option value="Bag">Bag</option>
+              <option value="Phone">Phone</option>
+              <option value="Documents">Documents</option>
+              <option value="Jewelry">Jewelry</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Filter by Status:</label>
+            <select id="filterStatus">
+              <option value="">All Status</option>
+              <option value="active">Active</option>
+              <option value="claimed">Claimed</option>
+              <option value="matched">Matched</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <input type="text" id="searchInput" placeholder="Search by name or location...">
+          </div>
+
+          <button class="btn-secondary" id="clearFilters">
+            <i class="fas fa-redo"></i> Clear
+          </button>
+
+          <button class="btn-primary" id="exportItems">
+            <i class="fas fa-download"></i> Export CSV
+          </button>
+        </div>
+
+        <div id="itemsGrid" class="items-grid"></div>
+      </section>
+
+      <!-- Map View Section -->
+      <section id="map-view" class="view-section">
+        <div class="section-header">
+          <h2><i class="fas fa-map-marked-alt"></i> VIT Vellore Campus Map</h2>
+          <div class="map-header-info">
+            <span><i class="fas fa-info-circle"></i> Interactive Google Maps - Search, get directions & explore campus</span>
+          </div>
+        </div>
+
+
+        <!-- Block to Block Search -->
+        <div class="block-search-panel">
+          <h3><i class="fas fa-route"></i> Find Your Way - Block to Block</h3>
+          <div class="block-search-inputs">
+            <div class="block-input-group">
+              <label><i class="fas fa-map-marker-alt" style="color: #10b981;"></i> From Block:</label>
+              <input type="text" id="fromBlock" placeholder="e.g., Main Building, TT, SJT, MGB Hostel" class="block-input">
+            </div>
+            <div class="swap-icon">
+              <i class="fas fa-exchange-alt"></i>
+            </div>
+            <div class="block-input-group">
+              <label><i class="fas fa-map-marker-alt" style="color: #ef4444;"></i> To Block:</label>
+              <input type="text" id="toBlock" placeholder="e.g., Library, GDN, Food Court, Academic Block" class="block-input">
+            </div>
+          </div>
+          <button class="btn-primary" id="searchBlockBtn" style="width: 100%; margin-top: 1rem;">
+            <i class="fas fa-search"></i> Search Directions
+          </button>
+        </div>
+
+        <!-- Google Map Embed (VIT Vellore) -->
+        <div class="google-map-container">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31239.54417668879!2d79.14434887431643!3d12.96945198750842!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bad479f0b81d17f%3A0xeaa14f59b2ed17ef!2sVIT%20University%2C%20Vellore!5e0!3m2!1sen!2sin!4v1729700000000!5m2!1sen!2sin"
+            width="100%"
+            height="650"
+            style="border:0; border-radius: 12px;"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
+        </div>
+
+        <!-- Map Information Card -->
+        <div class="map-info-card">
+          <h3><i class="fas fa-graduation-cap"></i> VIT Vellore Campus</h3>
+          <p style="color: #cbd5e1; margin: 0.5rem 0 1rem 0;">
+            Use the search box above to find directions between any two blocks on campus, or interact directly with the map below:
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
+            <div style="background: rgba(99, 102, 241, 0.1); padding: 1rem; border-radius: 8px; border-left: 3px solid #6366f1;">
+              <i class="fas fa-search" style="color: #818cf8;"></i>
+              <span style="color: #e2e8f0; margin-left: 0.5rem;">Search for buildings & locations</span>
+            </div>
+            <div style="background: rgba(16, 185, 129, 0.1); padding: 1rem; border-radius: 8px; border-left: 3px solid #10b981;">
+              <i class="fas fa-directions" style="color: #34d399;"></i>
+              <span style="color: #e2e8f0; margin-left: 0.5rem;">Get walking/driving directions</span>
+            </div>
+            <div style="background: rgba(245, 158, 11, 0.1); padding: 1rem; border-radius: 8px; border-left: 3px solid #f59e0b;">
+              <i class="fas fa-satellite" style="color: #fbbf24;"></i>
+              <span style="color: #e2e8f0; margin-left: 0.5rem;">View satellite imagery</span>
+            </div>
+            <div style="background: rgba(139, 92, 246, 0.1); padding: 1rem; border-radius: 8px; border-left: 3px solid #8b5cf6;">
+              <i class="fas fa-street-view" style="color: #a78bfa;"></i>
+              <span style="color: #e2e8f0; margin-left: 0.5rem;">Explore with Street View</span>
+            </div>
+          </div>
+          <a href="https://www.google.com/maps/place/VIT+University,+Vellore/@12.96945198750842,79.14434887431643,17z" 
+             target="_blank" 
+             class="btn-primary" 
+             style="display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; padding: 0.75rem 1.5rem;">
+            <i class="fas fa-external-link-alt"></i> Open in Full Google Maps
+          </a>
+        </div>
+      </section>
+
+      <!-- Blockchain Section -->
+      <section id="blockchain-view" class="view-section">
+        <div class="section-header">
+          <h2>Blockchain Records</h2>
+          <div class="blockchain-info">
+            <i class="fas fa-shield-alt"></i>
+            <span>Verified & Immutable Transactions</span>
+          </div>
+        </div>
+
+        <div class="blockchain-stats">
+          <div class="chain-stat">
+            <i class="fas fa-cubes"></i>
+            <div>
+              <h3 id="totalBlocks">0</h3>
+              <p>Total Blocks</p>
+            </div>
+          </div>
+          <div class="chain-stat">
+            <i class="fas fa-check-circle"></i>
+            <div>
+              <h3 id="verifiedTransactions">0</h3>
+              <p>Verified Transactions</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="filters">
+          <div class="filter-group">
+            <input type="text" id="blockchainSearch" placeholder="Search by product name, location...">
+          </div>
+          <div class="filter-group">
+            <label>Sort by:</label>
+            <select id="blockchainSort">
+              <option value="date">Date (Newest First)</option>
+              <option value="date-asc">Date (Oldest First)</option>
+              <option value="product">Product Name</option>
+              <option value="location">Location</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="blockchainChain" class="blockchain-chain"></div>
+      </section>
+
+      <!-- Notifications Section -->
+      <section id="notifications-view" class="view-section">
+        <div class="section-header">
+          <h2>Notifications</h2>
+          <button class="btn-secondary" id="markAllReadBtn">
+            <i class="fas fa-check-double"></i> Mark All as Read
+          </button>
+        </div>
+
+        <div id="notificationsList" class="notifications-list"></div>
+      </section>
+
+      <!-- Help & Support Section -->
+      <section id="help-view" class="view-section">
+        <div class="help-container">
+          <div class="help-header">
+            <i class="fas fa-life-ring"></i>
+            <h1>Help & Support Center</h1>
+            <p>Find answers or contact our expert support team</p>
+          </div>
+
+          <div class="help-grid">
+            <!-- Contact Cards -->
+            <div class="help-card">
+              <div class="help-card-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                <i class="fas fa-envelope"></i>
+              </div>
+              <h3>Email Support</h3>
+              <p>Send us your queries</p>
+              <a href="mailto:sanjai020206@gmail.com" class="help-link">sanjai020206@gmail.com</a>
+            </div>
+
+            <div class="help-card">
+              <div class="help-card-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                <i class="fas fa-phone"></i>
+              </div>
+              <h3>Phone Support</h3>
+              <p>Call us directly</p>
+              <a href="tel:+916380773890" class="help-link">+91 6380773890</a>
+            </div>
+
+            <div class="help-card">
+              <div class="help-card-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                <i class="fas fa-clock"></i>
+              </div>
+              <h3>Support Hours</h3>
+              <p>We're available</p>
+              <div class="help-link">Mon-Fri 9AM-5PM</div>
+            </div>
+          </div>
+
+          <!-- FAQ Section -->
+          <div class="faq-section">
+            <h2><i class="fas fa-question-circle"></i> Frequently Asked Questions</h2>
+            
+            <div class="faq-list">
+              <div class="faq-item">
+                <div class="faq-question">
+                  <i class="fas fa-chevron-right"></i>
+                  <h3>How do I report a lost item?</h3>
+                </div>
+                <div class="faq-answer">
+                  <p>Navigate to the "Items" section and click "Add Item". Select "Lost" as the type, fill in the details including description, category, location, and upload a photo if available. Your item will be added to the blockchain for secure record-keeping.</p>
+                </div>
+              </div>
+
+              <div class="faq-item">
+                <div class="faq-question">
+                  <i class="fas fa-chevron-right"></i>
+                  <h3>How does the claim process work?</h3>
+                </div>
+                <div class="faq-answer">
+                  <p>When you find a lost item, you can claim it by clicking "Claim This Item". You'll need to upload proof (photos, receipts, descriptions) to verify ownership. The item finder will review your claim and approve or request more information. Once approved, you'll receive collection location and contact details.</p>
+                </div>
+              </div>
+
+              <div class="faq-item">
+                <div class="faq-question">
+                  <i class="fas fa-chevron-right"></i>
+                  <h3>What is blockchain verification?</h3>
+                </div>
+                <div class="faq-answer">
+                  <p>Every item and claim is recorded on our blockchain system, creating an immutable, tamper-proof record. This ensures transparency and security. Each transaction is hashed using SHA-256 encryption and linked to previous records, making it virtually impossible to forge or alter records.</p>
+                </div>
+              </div>
+
+              <div class="faq-item">
+                <div class="faq-question">
+                  <i class="fas fa-chevron-right"></i>
+                  <h3>How do I handle notifications?</h3>
+                </div>
+                <div class="faq-answer">
+                  <p>You'll receive notifications for claim requests, approvals, messages, and system updates. Check the "Notifications" section regularly. For claim requests, you can approve or reject with detailed reasons. Mark notifications as read to keep your inbox organized.</p>
+                </div>
+              </div>
+
+              <div class="faq-item">
+                <div class="faq-question">
+                  <i class="fas fa-chevron-right"></i>
+                  <h3>Is my data secure?</h3>
+                </div>
+                <div class="faq-answer">
+                  <p>Absolutely! TerraTrust uses advanced blockchain technology with SHA-256 encryption, secure Supabase authentication, and row-level security. Your files are stored in encrypted cloud storage, and all sensitive data is protected. Multi-admin verification adds an extra layer of security for critical operations.</p>
+                </div>
+              </div>
+
+              <div class="faq-item">
+                <div class="faq-question">
+                  <i class="fas fa-chevron-right"></i>
+                  <h3>How can I contact the finder/owner?</h3>
+                </div>
+                <div class="faq-answer">
+                  <p>After a claim is approved, contact information and collection location will be provided in your notification. You can also send messages through our platform to coordinate the pickup without exposing personal contact details initially.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="help-actions">
+            <h2><i class="fas fa-rocket"></i> Quick Actions & Resources</h2>
+            <div class="help-action-grid">
+              <button class="help-action-btn" onclick="switchView('items')">
+                <i class="fas fa-plus-circle"></i>
+                <span>Report Lost/Found Item</span>
+              </button>
+              <button class="help-action-btn" onclick="switchView('blockchain')">
+                <i class="fas fa-shield-alt"></i>
+                <span>View Blockchain Records</span>
+              </button>
+              <button class="help-action-btn" onclick="switchView('notifications')">
+                <i class="fas fa-bell"></i>
+                <span>Check Notifications</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- System Features -->
+          <div class="system-features">
+            <h2><i class="fas fa-cog"></i> System Features</h2>
+            <div class="features-grid">
+              <div class="feature-item">
+                <i class="fas fa-lock"></i>
+                <h4>Blockchain-secured records</h4>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-clock"></i>
+                <h4>Real-time claim tracking</h4>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-users"></i>
+                <h4>Multi-admin verification</h4>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-cloud"></i>
+                <h4>Secure document storage</h4>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-mobile-alt"></i>
+                <h4>Mobile-responsive design</h4>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-search"></i>
+                <h4>Advanced search & filters</h4>
+              </div>
+            </div>
+          </div>
+
+          <!-- Emergency Help -->
+          <div class="emergency-help">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Need Immediate Help?</h3>
+            <p>For urgent matters, please call us directly or send an email. Our support team typically responds within 24 hours.</p>
+            <div class="emergency-contacts">
+              <a href="tel:+916380773890" class="emergency-btn">
+                <i class="fas fa-phone"></i> Call Now
+              </a>
+              <a href="mailto:sanjai020206@gmail.com" class="emergency-btn">
+                <i class="fas fa-envelope"></i> Email Support
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Profile Section -->
+      <section id="profile-view" class="view-section">
+        <div class="profile-card">
+          <div class="profile-header">
+            <div class="profile-avatar">
+              <i class="fas fa-user-circle"></i>
+            </div>
+            <h2 id="profileName">User Name</h2>
+            <p id="profileEmail">user@email.com</p>
+          </div>
+
+          <div class="profile-info">
+            <div class="info-row">
+              <span class="info-label">Phone:</span>
+              <span class="info-value" id="profilePhone">Not provided</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Member Since:</span>
+              <span class="info-value" id="profileDate">-</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">User ID:</span>
+              <span class="info-value" id="profileId">-</span>
+            </div>
+          </div>
+
+          <div class="profile-actions">
+            <button class="btn-danger" id="logoutBtn2">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading...</p>
+    </div>
+  </div>
+
+  <!-- Add Item Modal -->
+  <div id="addItemModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add Lost/Found Item</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+
+      <form id="addItemForm" class="modal-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Item Type *</label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="itemType" value="found" required>
+                <span>I am the Finder</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="itemType" value="lost" required>
+                <span>I am the Loser</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Item Name *</label>
+            <input type="text" name="itemName" required placeholder="e.g., Black Wallet">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Category *</label>
+            <select name="category" required>
+              <option value="">Select Category</option>
+              <option value="Wallet">Wallet</option>
+              <option value="ID">ID</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Keys">Keys</option>
+              <option value="Bag">Bag</option>
+              <option value="Phone">Phone</option>
+              <option value="Documents">Documents</option>
+              <option value="Jewelry">Jewelry</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Description *</label>
+            <textarea name="description" required rows="4" placeholder="Describe the item in detail..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Location *</label>
+            <input type="text" name="location" required placeholder="Where was it found/lost?">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date *</label>
+            <input type="date" name="date" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Contact Information *</label>
+            <input type="text" name="contactInfo" required placeholder="Email or Phone">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Upload Image</label>
+            <input type="file" name="image" accept="image/*" id="itemImage">
+            <div id="imagePreview" class="image-preview"></div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary modal-cancel">Cancel</button>
+          <button type="submit" class="btn-primary">
+            <i class="fas fa-save"></i> Save Item
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Item Detail Modal -->
+  <div id="itemDetailModal" class="modal">
+    <div class="modal-content modal-large">
+      <div class="modal-header">
+        <h2>Item Details</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div id="itemDetailContent"></div>
+    </div>
+  </div>
+
+  <!-- Claim Modal -->
+  <div id="claimModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Claim Item</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form id="claimForm" class="modal-form">
+        <input type="hidden" id="claimItemId">
+        <input type="hidden" id="claimOwnerId">
+        
+        <div class="form-group">
+          <label>Why is this item yours? *</label>
+          <textarea id="claimMessage" required rows="4" placeholder="Provide details to prove ownership..."></textarea>
+          <label for="claimProof" style="margin-top:10px;">Upload Proof (image/pdf, optional):</label>
+          <input type="file" id="claimProof" accept="image/*,.pdf" class="form-control" style="margin-bottom:10px;" />
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary modal-cancel">Cancel</button>
+          <button type="submit" class="btn-primary">
+            <i class="fas fa-hand-paper"></i> Submit Claim
+          </button>
+        </div>
+        <div id="claimSubmitNotification" style="display:none; margin-top:10px; color:green; font-weight:bold; text-align:center;">
+          <i class="fa-solid fa-circle-check"></i> Claim submitted!
+        </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="js/dashboard.js"></script>
+</body>
+</html>
+
+<!-- Message Lost Item Owner Modal -->
+<div id="messageModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Send Message About Lost Item</h2>
+      <button class="modal-close" onclick="closeMessageModal()">&times;</button>
+    </div>
+    <form id="messageForm" class="modal-form">
+      <input type="hidden" id="messageItemId">
+      <input type="hidden" id="messageOwnerId">
+      <div class="form-group">
+        <label>Item: <span id="messageItemName" style="font-weight: bold; color: var(--primary);"></span></label>
+      </div>
+      <div class="form-group">
+        <label>Your Message <span style="color:red;">*</span></label>
+        <textarea id="messageText" rows="5" placeholder="I found your lost item! I can help you..." required></textarea>
+        <small style="color: var(--text-secondary);">Let them know if you found their item or have information about it.</small>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeMessageModal()">Cancel</button>
+        <button type="submit" class="btn-primary"><i class="fas fa-paper-plane"></i> Send Message</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Approve Claim Modal (Finder response) -->
+<div id="approveModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Approve Claim & Send Response</h2>
+      <button class="modal-close">&times;</button>
+    </div>
+    <form id="approveForm" class="modal-form">
+      <input type="hidden" id="approveNotificationId">
+      <div class="form-group">
+        <label>Response Message (optional)</label>
+        <textarea id="approveMessage" rows="3" placeholder="Message to send to claimant..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Upload Response File (optional)</label>
+        <input type="file" id="approveFile" accept="image/*,.pdf" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary modal-cancel">Cancel</button>
+        <button type="submit" class="btn-primary"><i class="fas fa-paper-plane"></i> Send Response & Approve</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Reject Modal -->
+<div id="rejectModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Reject Claim & Send Reason</h2>
+      <button class="modal-close">&times;</button>
+    </div>
+    <form id="rejectForm" class="modal-form">
+      <input type="hidden" id="rejectNotificationId">
+      <div class="form-group">
+        <label>Reason for Rejection <span style="color:red;">*</span></label>
+        <select id="rejectReason" required>
+          <option value="">-- Select Reason --</option>
+          <option value="Insufficient proof">Insufficient proof provided</option>
+          <option value="Description mismatch">Description doesn't match the item</option>
+          <option value="Suspicious claim">Suspicious or fraudulent claim</option>
+          <option value="Already claimed">Item already claimed by rightful owner</option>
+          <option value="Need more details">Need more information</option>
+          <option value="Other">Other reason</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Additional Details (optional)</label>
+        <textarea id="rejectDetails" rows="4" placeholder="Explain what additional information or proof is required..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary modal-cancel">Cancel</button>
+        <button type="submit" class="btn-danger"><i class="fas fa-times-circle"></i> Reject & Send Reason</button>
+      </div>
+    </form>
+  </div>
+</div>
+

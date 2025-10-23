@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Notification Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <h1>Notification Creation Test</h1>
+  <button onclick="testNotification()">Test Create Notification</button>
+  <pre id="output"></pre>
+
+  <script>
+    // Replace with your Supabase credentials
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+    const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function testNotification() {
+      const output = document.getElementById('output');
+      output.textContent = 'Testing...\n';
+
+      try {
+        // 1. Check if user is logged in
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        output.textContent += `\n1. Auth check:\n`;
+        output.textContent += `   User ID: ${user?.id || 'NOT LOGGED IN'}\n`;
+        output.textContent += `   Email: ${user?.email || 'N/A'}\n`;
+        
+        if (!user) {
+          output.textContent += '\n❌ You must be logged in first!\n';
+          output.textContent += 'Go to your app and login, then come back here.\n';
+          return;
+        }
+
+        // 2. Get a test user ID (recipient)
+        const { data: users, error: usersError } = await supabase
+          .from('users')
+          .select('id, email')
+          .limit(2);
+
+        output.textContent += `\n2. Available users:\n`;
+        users.forEach(u => {
+          output.textContent += `   ${u.email} (${u.id})\n`;
+        });
+
+        const recipient = users.find(u => u.id !== user.id) || users[0];
+        output.textContent += `\n   Using recipient: ${recipient.email}\n`;
+
+        // 3. Get a test item ID
+        const { data: items } = await supabase
+          .from('items')
+          .select('id, item_name')
+          .limit(1);
+
+        const item = items[0];
+        output.textContent += `\n3. Test item: ${item?.item_name || 'None'}\n`;
+
+        if (!item) {
+          output.textContent += '❌ No items found! Create an item first.\n';
+          return;
+        }
+
+        // 4. Try to create notification
+        output.textContent += `\n4. Creating notification...\n`;
+
+        const notificationData = {
+          recipient_id: recipient.id,
+          sender_id: user.id,
+          item_id: item.id,
+          message: 'TEST NOTIFICATION - Please delete',
+          type: 'claim_request',
+          metadata: { test: true },
+          status: 'unread'
+        };
+
+        output.textContent += `   Data: ${JSON.stringify(notificationData, null, 2)}\n`;
+
+        const { data, error } = await supabase
+          .from('notifications')
+          .insert([notificationData])
+          .select()
+          .single();
+
+        output.textContent += `\n5. Result:\n`;
+        
+        if (error) {
+          output.textContent += `   ❌ ERROR:\n`;
+          output.textContent += `   Code: ${error.code}\n`;
+          output.textContent += `   Message: ${error.message}\n`;
+          output.textContent += `   Details: ${error.details}\n`;
+          output.textContent += `   Hint: ${error.hint}\n`;
+          output.textContent += `\n   Full error: ${JSON.stringify(error, null, 2)}\n`;
+        } else {
+          output.textContent += `   ✅ SUCCESS!\n`;
+          output.textContent += `   Notification ID: ${data.id}\n`;
+          output.textContent += `   Created at: ${data.created_at}\n`;
+          output.textContent += `\n   Full data: ${JSON.stringify(data, null, 2)}\n`;
+        }
+
+      } catch (err) {
+        output.textContent += `\n❌ EXCEPTION: ${err.message}\n`;
+        output.textContent += `Stack: ${err.stack}\n`;
+      }
+    }
+  </script>
+
+  <hr>
+  <h2>Instructions:</h2>
+  <ol>
+    <li>Update SUPABASE_URL and SUPABASE_KEY in the script above</li>
+    <li>Open this file in browser</li>
+    <li>Make sure you're logged in to your app in another tab</li>
+    <li>Click "Test Create Notification" button</li>
+    <li>Check the output - it will show EXACTLY what error is happening</li>
+  </ol>
+</body>
+</html>
