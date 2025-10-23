@@ -86,7 +86,7 @@ export const auth = {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin + '/dashboard'
+          redirectTo: window.location.origin + '/dashboard.html'
         }
       });
 
@@ -736,7 +736,7 @@ export const utils = {
     }
     
     if (!requireAuth && isAuth) {
-      window.location.href = '/dashboard';
+      window.location.href = '/dashboard.html';
       return false;
     }
     

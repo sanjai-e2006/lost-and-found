@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       // Wait a moment then redirect to dashboard
       setTimeout(() => {
-        window.location.href = '/dashboard';
+        window.location.href = '/dashboard.html';
       }, 1500);
       
     } catch (error) {

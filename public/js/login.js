@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       // Redirect to dashboard
       setTimeout(() => {
-        window.location.href = '/dashboard';
+        window.location.href = '/dashboard.html';
       }, 1000);
       
     } catch (error) {
