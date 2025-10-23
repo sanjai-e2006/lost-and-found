@@ -86,7 +86,7 @@ export const auth = {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin + '/public/dashboard.html'
+          redirectTo: window.location.origin + '/dashboard.html'
         }
       });
 
@@ -726,17 +726,18 @@ export const utils = {
     });
   },
 
-  // Check Auth and Redirect
+  // Check Auth and Redirect (for protected pages only)
   async checkAuthAndRedirect(requireAuth = true) {
-    const isAuth = await auth.isAuthenticated();
-    
-    if (requireAuth && !isAuth) {
-      window.location.href = '/login';
-      return false;
+    if (!requireAuth) {
+      // No longer used - pages that don't require auth won't call this
+      return true;
     }
     
-    if (!requireAuth && isAuth) {
-      window.location.href = '/dashboard.html';
+    const isAuth = await auth.isAuthenticated();
+    
+    if (!isAuth) {
+      // Not authenticated, redirect to login
+      window.location.href = '/login.html';
       return false;
     }
     

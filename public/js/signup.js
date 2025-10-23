@@ -1,9 +1,6 @@
 import { auth, utils } from './supabase-client.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Check if user is already logged in
-  await utils.checkAuthAndRedirect(false);
-
   const signupForm = document.getElementById('signupForm');
   const signupBtn = document.getElementById('signupBtn');
   const googleSignupBtn = document.getElementById('googleSignupBtn');

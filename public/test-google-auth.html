@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Google OAuth</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    button {
+      background: #4285f4;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px;
+    }
+    button:hover {
+      background: #357ae8;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    #output {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 5px;
+      white-space: pre-wrap;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    .success { color: green; }
+    .error { color: red; }
+    .info { color: blue; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔐 Google OAuth Test</h1>
+    <p>This page helps debug Google OAuth configuration</p>
+    
+    <div>
+      <button id="testGoogleBtn">Test Google Sign In</button>
+      <button id="checkSessionBtn">Check Session</button>
+      <button id="checkUserBtn">Check User in DB</button>
+      <button id="clearBtn">Clear Session</button>
+    </div>
+    
+    <div id="output"></div>
+  </div>
+
+  <script type="module">
+    import { supabase, auth } from './js/supabase-client.js';
+    
+    const output = document.getElementById('output');
+    
+    function log(message, type = 'info') {
+      const timestamp = new Date().toLocaleTimeString();
+      const className = type;
+      output.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+      console.log(message);
+    }
+    
+    // Test Google Sign In
+    document.getElementById('testGoogleBtn').addEventListener('click', async () => {
+      log('🔵 Initiating Google OAuth...', 'info');
+      
+      try {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: window.location.origin + '/dashboard.html'
+          }
+        });
+        
+        if (error) {
+          log('❌ Error: ' + error.message, 'error');
+          log('Error details: ' + JSON.stringify(error, null, 2), 'error');
+        } else {
+          log('✅ OAuth initiated successfully', 'success');
+          log('Data: ' + JSON.stringify(data, null, 2), 'success');
+        }
+      } catch (err) {
+        log('❌ Exception: ' + err.message, 'error');
+        log('Stack: ' + err.stack, 'error');
+      }
+    });
+    
+    // Check Session
+    document.getElementById('checkSessionBtn').addEventListener('click', async () => {
+      log('🔵 Checking session...', 'info');
+      
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          log('❌ Error: ' + error.message, 'error');
+        } else if (session) {
+          log('✅ Active session found', 'success');
+          log('User email: ' + session.user.email, 'success');
+          log('Provider: ' + (session.user.app_metadata?.provider || 'N/A'), 'success');
+          log('Session details: ' + JSON.stringify({
+            user_id: session.user.id,
+            email: session.user.email,
+            provider: session.user.app_metadata?.provider,
+            metadata: session.user.user_metadata
+          }, null, 2), 'info');
+        } else {
+          log('⚠️ No active session', 'info');
+        }
+      } catch (err) {
+        log('❌ Exception: ' + err.message, 'error');
+      }
+    });
+    
+    // Check User in DB
+    document.getElementById('checkUserBtn').addEventListener('click', async () => {
+      log('🔵 Checking user in database...', 'info');
+      
+      try {
+        const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+        
+        if (authError || !authUser) {
+          log('⚠️ No authenticated user found', 'info');
+          return;
+        }
+        
+        log('✅ Auth user: ' + authUser.email, 'success');
+        
+        // Check in users table
+        const { data: dbUser, error: dbError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', authUser.id)
+          .single();
+        
+        if (dbError) {
+          log('❌ User not in database: ' + dbError.message, 'error');
+          log('Creating user record...', 'info');
+          
+          // Try to create user
+          const { error: insertError } = await supabase
+            .from('users')
+            .upsert([
+              {
+                id: authUser.id,
+                email: authUser.email,
+                full_name: authUser.user_metadata?.full_name || authUser.user_metadata?.name || authUser.email.split('@')[0],
+                phone: authUser.user_metadata?.phone || null
+              }
+            ], {
+              onConflict: 'id'
+            });
+          
+          if (insertError) {
+            log('❌ Failed to create user: ' + insertError.message, 'error');
+          } else {
+            log('✅ User created successfully!', 'success');
+          }
+        } else {
+          log('✅ User found in database', 'success');
+          log('User data: ' + JSON.stringify(dbUser, null, 2), 'success');
+        }
+      } catch (err) {
+        log('❌ Exception: ' + err.message, 'error');
+      }
+    });
+    
+    // Clear Session
+    document.getElementById('clearBtn').addEventListener('click', async () => {
+      log('🔵 Clearing session...', 'info');
+      
+      try {
+        await supabase.auth.signOut();
+        localStorage.clear();
+        sessionStorage.clear();
+        log('✅ Session cleared', 'success');
+        setTimeout(() => {
+          output.innerHTML = '';
+        }, 2000);
+      } catch (err) {
+        log('❌ Error: ' + err.message, 'error');
+      }
+    });
+    
+    // Check on page load
+    window.addEventListener('load', async () => {
+      log('📱 Page loaded, checking initial state...', 'info');
+      
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        log('✅ Found existing session for: ' + session.user.email, 'success');
+      } else {
+        log('ℹ️ No existing session', 'info');
+      }
+    });
+  </script>
+</body>
+</html>

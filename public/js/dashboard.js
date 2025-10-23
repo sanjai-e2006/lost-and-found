@@ -154,7 +154,38 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Get current user
   const { user, error } = await auth.getCurrentUser();
   if (error || !user) {
-    window.location.href = '/login';
+    console.error('Failed to get user:', error);
+    
+    // If user doesn't exist in database but is authenticated (OAuth case)
+    // Try to get auth user and create database entry
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (authUser) {
+      console.log('Creating user record for OAuth user:', authUser.email);
+      
+      // Create user in database
+      const { error: insertError } = await supabase
+        .from('users')
+        .upsert([
+          {
+            id: authUser.id,
+            email: authUser.email,
+            full_name: authUser.user_metadata?.full_name || authUser.user_metadata?.name || authUser.email.split('@')[0],
+            phone: authUser.user_metadata?.phone || null
+          }
+        ], {
+          onConflict: 'id'
+        });
+      
+      if (insertError) {
+        console.error('Failed to create user record:', insertError);
+      } else {
+        // Reload to get the user
+        window.location.reload();
+        return;
+      }
+    }
+    
+    window.location.href = '/login.html';
     return;
   }
 
