@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "YoLost - Lost & Found Platform",
+  "short_name": "YoLost",
+  "version": "1.0.0",
+  "description": "Blockchain-based Lost & Found platform with secure item tracking and verification",
+  "author": "YoLost Team",
+  "icons": {
+    "16": "public/icon-16.png",
+    "48": "public/icon-48.png",
+    "128": "public/icon-128.png"
+  },
+  "action": {
+    "default_popup": "public/index.html",
+    "default_icon": {
+      "16": "public/icon-16.png",
+      "48": "public/icon-48.png",
+      "128": "public/icon-128.png"
+    },
+    "default_title": "YoLost - Lost & Found"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "storage",
+    "notifications"
+  ],
+  "host_permissions": [
+    "https://wrhlkisiglmhncwqykac.supabase.co/*",
+    "https://lost-and-found-pr4m.vercel.app/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://wrhlkisiglmhncwqykac.supabase.co https://lost-and-found-pr4m.vercel.app https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://maps.googleapis.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data: https: blob:;"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["public/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

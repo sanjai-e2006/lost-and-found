@@ -1,4 +1,4 @@
-import { auth, items, blockchain, notifications, claims, utils, supabase } from './supabase-client.js';
+import { auth, items, blockchain, notifications, claims, utils, supabase } from './supabase-client-fixed.js';
 
 // Global state
 let currentUser = null;

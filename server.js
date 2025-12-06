@@ -9,6 +9,14 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json());
+
+// CORS headers for Supabase CDN and ES modules
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes

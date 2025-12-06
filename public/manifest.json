@@ -1,0 +1,109 @@
+{{
+
+  "name": "YoLost - Lost & Found Platform",  "name": "YoLost",
+
+  "short_name": "YoLost",  "short_name": "YoLost",
+
+  "description": "Blockchain-based Lost and Found Platform with secure verification and real-time notifications",  "description": "Lost & Found Platform with Blockchain Verification",
+
+  "version": "1.0.0",  "start_url": "/",
+
+  "manifest_version": 3,  "display": "standalone",
+
+  "start_url": "/",  "background_color": "#667eea",
+
+  "display": "standalone",  "theme_color": "#667eea",
+
+  "background_color": "#0f172a",  "orientation": "portrait",
+
+  "theme_color": "#6366f1",  "icons": [
+
+  "orientation": "portrait-primary",    {
+
+  "scope": "/",      "src": "icon-192.png",
+
+  "icons": [      "sizes": "192x192",
+
+    {      "type": "image/png",
+
+      "src": "/icons/icon-72.png",      "purpose": "any maskable"
+
+      "sizes": "72x72",    },
+
+      "type": "image/png",    {
+
+      "purpose": "any"      "src": "icon-512.png",
+
+    },      "sizes": "512x512",
+
+    {      "type": "image/png",
+
+      "src": "/icons/icon-96.png",      "purpose": "any maskable"
+
+      "sizes": "96x96",    }
+
+      "type": "image/png",  ]
+
+      "purpose": "any"}
+
+    },
+    {
+      "src": "/icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshots/mobile-1.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "categories": ["utilities", "productivity", "social"],
+  "permissions": [
+    "storage",
+    "notifications"
+  ],
+  "host_permissions": [
+    "https://lost-and-found-pr4m.vercel.app/*"
+  ]
+}

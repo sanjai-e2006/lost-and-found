@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .test-item {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #ddd;
+        }
+        .test-item.success {
+            background: #d4edda;
+            border-left-color: #28a745;
+            color: #155724;
+        }
+        .test-item.error {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+        .test-item.pending {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+            color: #856404;
+        }
+        .test-item.info {
+            background: #d1ecf1;
+            border-left-color: #17a2b8;
+            color: #0c5460;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔍 Supabase Connection Diagnostics</h1>
+        <div id="results"></div>
+        <div style="margin-top: 20px;">
+            <button id="testConnectionBtn">Test Connection</button>
+            <button id="testAuthBtn">Test Auth Service</button>
+            <button id="testDatabaseBtn">Test Database Access</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const SUPABASE_URL = 'https://wrhlkisiglmhncwqykac.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyaGxraXNpZ2xtaG5jd3F5a2FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4NjU2NTYsImV4cCI6MjA3NjQ0MTY1Nn0.UmAXq7_Yyik3l7L6VTOyb34bSBkYe8z1z6H3e0HlXB8';
+
+        const results = document.getElementById('results');
+
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-item ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+
+        function clearResults() {
+            results.innerHTML = '';
+        }
+
+        // Test 1: Basic Connection
+        document.getElementById('testConnectionBtn').addEventListener('click', async () => {
+            clearResults();
+            addResult('⏳ Testing Supabase connection...', 'pending');
+
+            try {
+                const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                addResult('✅ Supabase client created successfully', 'success');
+                addResult(`<strong>URL:</strong> ${SUPABASE_URL}`, 'info');
+                addResult(`<strong>Key Length:</strong> ${SUPABASE_ANON_KEY.length} characters`, 'info');
+
+                // Try to fetch from auth
+                const { data, error } = await supabase.auth.getSession();
+                if (error) {
+                    addResult(`⚠️ Auth service error: ${error.message}`, 'error');
+                } else {
+                    addResult('✅ Auth service is accessible', 'success');
+                    addResult(`<strong>Current session:</strong> ${data.session ? 'Active' : 'None'}`, 'info');
+                }
+            } catch (error) {
+                addResult(`❌ Connection failed: ${error.message}`, 'error');
+                console.error('Connection error:', error);
+            }
+        });
+
+        // Test 2: Auth Service
+        document.getElementById('testAuthBtn').addEventListener('click', async () => {
+            clearResults();
+            addResult('⏳ Testing authentication service...', 'pending');
+
+            try {
+                const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                
+                // Check current user
+                const { data: { user }, error: userError } = await supabase.auth.getUser();
+                
+                if (userError) {
+                    addResult(`⚠️ Auth check error: ${userError.message}`, 'error');
+                } else {
+                    if (user) {
+                        addResult('✅ User is logged in', 'success');
+                        addResult(`<strong>User ID:</strong> ${user.id}`, 'info');
+                        addResult(`<strong>Email:</strong> ${user.email}`, 'info');
+                    } else {
+                        addResult('ℹ️ No user currently logged in', 'info');
+                    }
+                }
+
+                // Test auth endpoint availability
+                const testEmail = 'test@example.com';
+                const testPassword = 'testpassword123';
+                
+                addResult('⏳ Testing sign-in endpoint (with fake credentials)...', 'pending');
+                const { error: signInError } = await supabase.auth.signInWithPassword({
+                    email: testEmail,
+                    password: testPassword
+                });
+
+                if (signInError) {
+                    if (signInError.message.includes('Invalid login credentials')) {
+                        addResult('✅ Auth endpoint is working (expected error for fake credentials)', 'success');
+                    } else {
+                        addResult(`⚠️ Unexpected auth error: ${signInError.message}`, 'error');
+                    }
+                } else {
+                    addResult('⚠️ Fake credentials worked (unexpected)', 'error');
+                }
+
+            } catch (error) {
+                addResult(`❌ Auth test failed: ${error.message}`, 'error');
+                console.error('Auth test error:', error);
+            }
+        });
+
+        // Test 3: Database Access
+        document.getElementById('testDatabaseBtn').addEventListener('click', async () => {
+            clearResults();
+            addResult('⏳ Testing database access...', 'pending');
+
+            try {
+                const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                
+                // Try to query users table
+                addResult('⏳ Testing users table access...', 'pending');
+                const { data: usersData, error: usersError } = await supabase
+                    .from('users')
+                    .select('count')
+                    .limit(1);
+
+                if (usersError) {
+                    addResult(`❌ Users table error: ${usersError.message}`, 'error');
+                    addResult(`<pre>${JSON.stringify(usersError, null, 2)}</pre>`, 'error');
+                } else {
+                    addResult('✅ Users table is accessible', 'success');
+                }
+
+                // Try to query lost_items table
+                addResult('⏳ Testing lost_items table access...', 'pending');
+                const { data: lostData, error: lostError } = await supabase
+                    .from('lost_items')
+                    .select('count')
+                    .limit(1);
+
+                if (lostError) {
+                    addResult(`❌ Lost items table error: ${lostError.message}`, 'error');
+                } else {
+                    addResult('✅ Lost items table is accessible', 'success');
+                }
+
+                // Try to query found_items table
+                addResult('⏳ Testing found_items table access...', 'pending');
+                const { data: foundData, error: foundError } = await supabase
+                    .from('found_items')
+                    .select('count')
+                    .limit(1);
+
+                if (foundError) {
+                    addResult(`❌ Found items table error: ${foundError.message}`, 'error');
+                } else {
+                    addResult('✅ Found items table is accessible', 'success');
+                }
+
+            } catch (error) {
+                addResult(`❌ Database test failed: ${error.message}`, 'error');
+                console.error('Database test error:', error);
+            }
+        });
+
+        // Auto-run connection test on load
+        window.addEventListener('load', () => {
+            document.getElementById('testConnectionBtn').click();
+        });
+    </script>
+</body>
+</html>
